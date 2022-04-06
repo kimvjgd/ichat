@@ -13,6 +13,7 @@ import 'package:ichat_app/allScreens/login_page.dart';
 import 'package:ichat_app/allWidgets/loading_view.dart';
 import 'package:ichat_app/main.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -293,6 +294,11 @@ class ChatPageState extends State<ChatPage> {
                     height: 50,
                     fit: BoxFit.cover,
                   )),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
               TextButton(
                   onPressed: () => onSendMessage('mimi4', TypeMessage.sticker),
                   child: Image.asset(
@@ -317,6 +323,11 @@ class ChatPageState extends State<ChatPage> {
                     height: 50,
                     fit: BoxFit.cover,
                   )),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
               TextButton(
                   onPressed: () => onSendMessage('mimi7', TypeMessage.sticker),
                   child: Image.asset(
@@ -513,6 +524,7 @@ class ChatPageState extends State<ChatPage> {
                             right: 10),
                       )
           ],
+          mainAxisAlignment: MainAxisAlignment.end,
         );
       } else {
         return Container(
@@ -630,9 +642,8 @@ class ChatPageState extends State<ChatPage> {
                                 onPressed: () {},
                               ),
                               margin: EdgeInsets.only(
-                                  bottom: isLastMessageRight(index) ? 20 : 10,
-                                  right: 10),
-                            )
+                                left: 10,
+                              ))
                           : Container(
                               child: Image.asset(
                                 'images/${messageChat.content}.gif',
@@ -645,9 +656,20 @@ class ChatPageState extends State<ChatPage> {
                                   right: 10),
                             )
                 ],
-              )
+              ),
+              isLastMessageLeft(index)
+              ? Container(
+                child: Text(
+                  DateFormat('dd MM yyyy, hh:mm a')
+                      .format(DateTime.fromMillisecondsSinceEpoch(int.parse(messageChat.timestamp))),
+                  style: TextStyle(color: ColorConstants.greyColor, fontSize: 12, fontStyle: FontStyle.italic),
+
+                ),
+                margin: EdgeInsets.only(left: 50, top: 5, bottom: 5),
+              ): SizedBox.shrink()
             ],
           ),
+          margin: EdgeInsets.only(bottom: 10),
         );
       }
     } else {
