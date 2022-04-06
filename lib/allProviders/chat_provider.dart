@@ -1,0 +1,71 @@
+import 'dart:io';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:ichat_app/allConstants/constants.dart';
+import 'package:ichat_app/allModels/message_chat.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+class ChatProvider {
+  final SharedPreferences prefs;
+  final FirebaseFirestore firebaseFirestore;
+  final FirebaseStorage firebaseStorage;
+
+  ChatProvider(
+      {required this.firebaseFirestore,
+      required this.prefs,
+      required this.firebaseStorage});
+
+  UploadTask uploadFile(File image, String filename) {
+    Reference reference = firebaseStorage.ref().child(filename);
+    UploadTask uploadTask = reference.putFile(image);
+    return uploadTask;
+  }
+
+  Future<void> updateDataFirestore(String collectionpath, String docPath,
+      Map<String, dynamic> dataNeedUpdate) {
+    return firebaseFirestore
+        .collection(collectionpath)
+        .doc(docPath)
+        .update(dataNeedUpdate);
+  }
+
+  Stream<QuerySnapshot> getChatStream(String grouptChatId, int limit) {
+    return firebaseFirestore
+        .collection(FirestoreConstants.pathMessageCollection)
+        .doc(grouptChatId)
+        .collection(grouptChatId)
+        .orderBy(FirestoreConstants.timestamp, descending: true)
+        .limit(limit)
+        .snapshots();
+  }
+
+  void sendMessage(String content, int type, String grouptChatId,
+      String currentUserId, String peerId) {
+    DocumentReference documentReference = firebaseFirestore
+        .collection(FirestoreConstants.pathMessageCollection)
+        .doc(grouptChatId)
+        .collection(grouptChatId)
+        .doc(DateTime.now().millisecondsSinceEpoch.toString());
+    MessageChat messageChat = MessageChat(
+        idFrom: currentUserId,
+        idTo: peerId,
+        timestamp: DateTime.now().millisecondsSinceEpoch.toString(),
+        content: content,
+        type: type);
+
+    FirebaseFirestore.instance.runTransaction((transaction) async{
+      transaction.set(
+        documentReference,
+        messageChat.toJson()
+      );
+    });
+  }
+}
+
+class TypeMessage{
+  static const text = 0;
+  static const image = 1;
+  static const sticker = 2;
+
+}
